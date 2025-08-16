@@ -20,7 +20,7 @@ Website: https://processintelligence.solutions
 Contact: info@processintelligence.solutions
 '''
 from copy import copy
-print("HELLO")
+
 from pm4py.algo.conformance.alignments.petri_net import variants
 from pm4py.objects.petri_net.utils import align_utils, check_soundness
 from pm4py.objects.conversion.log import converter as log_converter
@@ -525,20 +525,4 @@ def get_diagnostics_dataframe(log, align_output, parameters=None):
 
     diagn_stream = []
 
-    for index in range(len(log)):
-        case_id = log[index].attributes[case_id_key]
-
-        cost = align_output[index]["cost"]
-        fitness = align_output[index]["fitness"]
-        is_fit = fitness == 1.0
-
-        diagn_stream.append(
-            {
-                "case_id": case_id,
-                "cost": cost,
-                "fitness": fitness,
-                "is_fit": is_fit,
-            }
-        )
-
-    return pandas_utils.instantiate_dataframe(diagn_stream)
+    for index in range
