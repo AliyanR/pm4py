@@ -101,7 +101,7 @@ VERSIONS = {
     Variants.VERSION_DIJKSTRA_LESS_MEMORY,
 }
 
-
+num_trace = 0
 def apply(
     obj: Union[EventLog, EventStream, pd.DataFrame, Trace],
     petri_net: PetriNet,
@@ -316,7 +316,6 @@ def apply_log(
     all_alignments = []
     WARNING_THRESHOLD = 5000  # Joule pro Trace – hier beliebiger Schwellwert
 
-    num_trace = 0
     for trace in one_tr_per_var:
         num_trace += 1
 
