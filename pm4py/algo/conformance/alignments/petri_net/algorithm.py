@@ -364,7 +364,7 @@ def apply_log(
 
 
 
-def apply_multiprocessing(pr
+def apply_multiprocessing(
     log,
     petri_net,
     initial_marking,
