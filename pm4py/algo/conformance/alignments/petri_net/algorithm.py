@@ -216,39 +216,35 @@ def apply_trace(
 
 import requests
 import subprocess
-PROMETHEUS_URL = "http://localhost:9090"
 
+PROMETHEUS_URL = "http://prometheus-kube-prometheus-prometheus.monitoring:9090"
 
-def query_energy(pod_name: str): # last 5 minutes
+def query_energy(pod_name: str):
     query = f'increase(kepler_container_joules_total{{pod_name="{pod_name}"}}[5m])'
     url = f"{PROMETHEUS_URL}/api/v1/query"
     response = requests.get(url, params={"query": query})
     result = response.json()
     data = result["data"]["result"]
-    print(data)
-    joules = float(data[0]["value"][1])
+    joules = float(data[0]["value"][1]) if data else 0.0
     return round(joules, 2)
 
 
-def get_pods_by_label(label_selector):
-    """Liefert alle Pod-Namen mit passendem Label."""
-    try:
-        subprocess.run(
-            ["kubectl", "wait", "--for=condition=Ready", "pod", "-l", label_selector, "--timeout=60s"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-    except subprocess.CalledProcessError:
-        print("⚠️ Warnung: Einige Pods wurden nicht rechtzeitig bereit.")
+from kubernetes import client, config
 
-    result = subprocess.run(
-        ["kubectl", "get", "pods", "-l", label_selector, "-o", "jsonpath={.items[*].metadata.name}"],
-        check=True,
-        capture_output=True,
-        text=True
+def get_pods_by_label(label_selector: str, namespace: str = "default"):
+    """
+    Liefert alle Pod-Namen mit passendem Label via K8s API.
+    Funktioniert innerhalb des Clusters ohne kubectl.
+    """
+    # Lädt automatisch das ServiceAccount-Token im Cluster
+    config.load_incluster_config()  
+    
+    v1 = client.CoreV1Api()
+    pods = v1.list_namespaced_pod(
+        namespace=namespace,
+        label_selector=label_selector
     )
-    return result.stdout.strip().split()
+    return [p.metadata.name for p in pods.items]
 
 
 def apply_log(
