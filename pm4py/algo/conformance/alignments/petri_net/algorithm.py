@@ -20,7 +20,7 @@ Website: https://processintelligence.solutions
 Contact: info@processintelligence.solutions
 '''
 from copy import copy
-
+print("HELLO")
 from pm4py.algo.conformance.alignments.petri_net import variants
 from pm4py.objects.petri_net.utils import align_utils, check_soundness
 from pm4py.objects.conversion.log import converter as log_converter
