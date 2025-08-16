@@ -230,7 +230,7 @@ def query_energy(pod_name: str): # last 5 minutes
     return round(joules, 2)
 
 
-def get_pods_by_label(label_selector: str) -> list[str]:
+def get_pods_by_label(label_selector):
     """Liefert alle Pod-Namen mit passendem Label."""
     try:
         subprocess.run(
