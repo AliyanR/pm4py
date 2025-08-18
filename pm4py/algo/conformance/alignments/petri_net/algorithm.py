@@ -323,9 +323,9 @@ def apply_log(
         energy_joul = query_energy(pod)
         energy_joul_per_trace = energy_joul / num_trace
 
-        print("ENERGY_IS")
-        print(energy_joul)
+        print("ENERGY_IS PER TRACE BEFORE ALGO IS: ")
         print(energy_joul_per_trace)
+        print("num_trace")
         print(num_trace)
 
         # 🔔 Wenn der Energieverbrauch pro Trace zu hoch wird → Warnung
@@ -357,6 +357,18 @@ def apply_log(
 
         print("Zeit messen")
         print(f"Trace {num_trace} Dauer: {t1_a - t0_a:.4f} Sekunden")
+
+        energy_joul = query_energy(pod)
+        energy_joul_per_trace_after = energy_joul / num_trace
+
+        print("ENERGY_IS PER TRACE AFTER ALGO IS: ")
+        print((energy_joul_per_trace_after - energy_joul_per_trace) / num_trace)
+        print("num_trace")
+        print(num_trace)
+
+        print("DICT")
+        print(all_alignments[-1])
+
 
         if progress is not None:
             progress.update()
