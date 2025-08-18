@@ -157,7 +157,7 @@ def apply(trace, petri_net, initial_marking, final_marking, parameters=None):
     else :
         expo = exec_utils.get_param_value(Parameters.EXPONENT, parameters, None)
         if expo is None:
-            expo=2
+            expo=10
         alignment = __search_without_synchr(petri_net, initial_marking, final_marking,trace, expo=expo)
     return alignment
 
