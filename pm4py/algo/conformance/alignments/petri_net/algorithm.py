@@ -319,6 +319,7 @@ def apply_log(
     for trace in one_tr_per_var:
         num_trace += 1
 
+        t0_a = time.time()
         # Aktuelle Energie holen
         pod = get_pods_by_label("app=python-example")[0]
         energy_joul = query_energy(pod)
@@ -339,8 +340,7 @@ def apply_log(
             max_align_time_case,
             (max_align_time - (time.time() - start_time)) * 0.5,
         )
-        print("Zeit messen")
-        print(f"Trace {num_trace} Dauer: {time.time() - start_time:.4f} Sekunden")
+
         parameters[Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = this_max_align_time
 
         # Alignment durchführen
@@ -354,6 +354,11 @@ def apply_log(
                 variant=variant,
             )
         )
+
+        t1_a = time.time()
+
+        print("Zeit messen")
+        print(f"Trace {num_trace} Dauer: {t1_a - t0_a:.4f} Sekunden")
 
         if progress is not None:
             progress.update()
