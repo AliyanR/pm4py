@@ -324,7 +324,8 @@ def apply_log(
         energy_joul_per_trace = energy_joul / num_trace
 
         print("ENERGY_IS PER TRACE BEFORE ALGO IS: ")
-        print(energy_joul_per_trace)
+        before = query_energy(pod)
+        print(before)
         print("num_trace")
         print(num_trace)
 
@@ -362,7 +363,9 @@ def apply_log(
         energy_joul_per_trace_after = energy_joul / num_trace
 
         print("ENERGY_IS PER TRACE AFTER ALGO IS: ")
-        print((energy_joul_per_trace_after - energy_joul_per_trace) / num_trace)
+        after = query_energy(pod)
+        delta = after - before
+        print(f"Energie Trace {num_trace}: {delta:.4f} J")
         print("num_trace")
         print(num_trace)
 
