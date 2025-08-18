@@ -339,6 +339,8 @@ def apply_log(
             max_align_time_case,
             (max_align_time - (time.time() - start_time)) * 0.5,
         )
+        print("Zeit messen")
+        print(f"Trace {num_trace} Dauer: {time.time() - start_time:.4f} Sekunden")
         parameters[Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = this_max_align_time
 
         # Alignment durchführen
