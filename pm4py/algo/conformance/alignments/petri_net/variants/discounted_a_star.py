@@ -297,7 +297,7 @@ def apply_trace_net(petri_net, initial_marking, final_marking, trace_net, trace_
                                                          parameters, False)
     expo = exec_utils.get_param_value(Parameters.EXPONENT, parameters, None)
     if expo is None:
-        expo=2
+        expo=10
     trace_cost_function = exec_utils.get_param_value(Parameters.PARAM_TRACE_COST_FUNCTION, parameters, None)
     model_cost_function = exec_utils.get_param_value(Parameters.PARAM_MODEL_COST_FUNCTION, parameters, None)
     sync_cost_function = exec_utils.get_param_value(Parameters.PARAM_SYNC_COST_FUNCTION, parameters, None)
@@ -330,14 +330,14 @@ def apply_trace_net(petri_net, initial_marking, final_marking, trace_net, trace_
 
 
 def apply_sync_prod(sync_prod, initial_marking, final_marking, skip, ret_tuple_as_trans_desc=False,
-                    max_align_time_trace=sys.maxsize, expo=2):
+                    max_align_time_trace=sys.maxsize, expo=10):
     return __search_with_synchr(sync_prod, initial_marking, final_marking, skip,
                                 ret_tuple_as_trans_desc=ret_tuple_as_trans_desc, max_align_time_trace=max_align_time_trace,
                                 expo=expo)
 
 
 def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False,
-                         max_align_time_trace=sys.maxsize, expo=2):
+                         max_align_time_trace=sys.maxsize, expo=10):
     '''
     In this function that can be called with the following way:
             alignment.algorithm.apply(trace, net, marking, fmarking,variant=ali.VERSION_DIJKSTRA_EXPONENTIAL_HEURISTIC,
@@ -414,7 +414,7 @@ def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False
             heapq.heappush(open_set, tp)
 
 def __search_without_synchr(net, ini, fin, log_trace, skip= utils.SKIP, ret_tuple_as_trans_desc=True,
-                            max_align_time_trace=sys.maxsize,expo=2):
+                            max_align_time_trace=sys.maxsize,expo=10):
     '''
     In this function that can be called with the following way:
             alignment.algorithm.apply(trace, net, marking, fmarking,variant=ali.VERSION_DIJKSTRA_EXPONENTIAL_HEURISTIC,
