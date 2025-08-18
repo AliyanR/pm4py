@@ -346,6 +346,9 @@ def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False
     Other parameters:
     ali.Parameters.EXPONENT:2 (change the base of the log)
     '''
+
+    print("EXPO WERT NOAH")
+    print(expo)
     start_time = time.time()
     decorate_transitions_prepostset(sync_net)
     decorate_places_preset_trans(sync_net)
@@ -436,8 +439,7 @@ def __search_without_synchr(net, ini, fin, log_trace, skip= utils.SKIP, ret_tupl
 
     def cost_function(t,l, expo):
 
-        print("EXPO WERT NOAH")
-        print(expo)
+
         if t == utils.SKIP :
             return expo**(-l)
         else :
