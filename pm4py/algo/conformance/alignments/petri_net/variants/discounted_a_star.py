@@ -19,21 +19,7 @@ visit <https://www.gnu.org/licenses/>.
 Website: https://processintelligence.solutions
 Contact: info@processintelligence.solutions
 '''
-import heapq
-import time
-from pm4py import util as pm4pyutil
-from pm4py.objects import petri_net
-from pm4py.objects.log import obj as log_implementation
-from pm4py.util.xes_constants import DEFAULT_NAME_KEY
-from pm4py.objects.petri_net.utils.synchronous_product import construct, construct_cost_aware
-from pm4py.objects.petri_net.utils.petri_utils import construct_trace_net_cost_aware, decorate_places_preset_trans, \
-    decorate_transitions_prepostset
-from pm4py.objects.petri_net.utils import align_utils as utils
-from pm4py.util import exec_utils
-from copy import copy
-from enum import Enum
-import sys
-from pm4py.util.constants import PARAMETER_CONSTANT_ACTIVITY_KEY
+
 
 '''
 This version sets a specific heuristic whom paper description is under submission.
@@ -313,38 +299,7 @@ def apply_trace_net(petri_net, initial_marking, final_marking, trace_net, trace_
     else:
         revised_sync = dict()
         for t_trace in trace_net.transitions:
-            for t_model in petri_net.transitions:
-                if t_trace.label == t_model.label:
-                    revised_sync[(t_trace, t_model)] = sync_cost_function[t_model]
-
-        sync_prod, sync_initial_marking, sync_final_marking, cost_function = construct_cost_aware(
-            trace_net, trace_im, trace_fm, petri_net, initial_marking, final_marking, utils.SKIP,
-            trace_net_costs, model_cost_function, revised_sync)
-
-    max_align_time_trace = exec_utils.get_param_value(Parameters.PARAM_MAX_ALIGN_TIME_TRACE, parameters,
-                                                      sys.maxsize)
-
-    return apply_sync_prod(sync_prod, sync_initial_marking, sync_final_marking,
-                           utils.SKIP, ret_tuple_as_trans_desc=ret_tuple_as_trans_desc,
-                           max_align_time_trace=max_align_time_trace, expo=expo)
-
-
-def apply_sync_prod(sync_prod, initial_marking, final_marking, skip, ret_tuple_as_trans_desc=False,
-                    max_align_time_trace=sys.maxsize, expo=2):
-    return __search_with_synchr(sync_prod, initial_marking, final_marking, skip,
-                                ret_tuple_as_trans_desc=ret_tuple_as_trans_desc, max_align_time_trace=max_align_time_trace,
-                                expo=expo)
-
-
-def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False,
-                         max_align_time_trace=sys.maxsize, expo=2):
-    '''
-    In this function that can be called with the following way:
-            alignment.algorithm.apply(trace, net, marking, fmarking,variant=ali.VERSION_DIJKSTRA_EXPONENTIAL_HEURISTIC,
-                                parameters={ali.Parameters.SYNCHRONOUS:True})
-    Cost of transition depends on the run of the synchronous product.
-    Other parameters:
-    ali.Parameters.EXPONENT:2 (change the base of the log)
+            for t_model in petri_n
     '''
     start_time = time.time()
     decorate_transitions_prepostset(sync_net)
