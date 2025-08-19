@@ -13,7 +13,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see this software project's root or
+align_time_max = 0.001
 visit <https://www.gnu.org/licenses/>.
 
 Website: https://processintelligence.solutions
@@ -48,7 +48,7 @@ class Variants(Enum):
     VERSION_STATE_EQUATION_A_STAR = variants.state_equation_a_star
     VERSION_DIJKSTRA_NO_HEURISTICS = variants.dijkstra_no_heuristics
     VERSION_DIJKSTRA_LESS_MEMORY = variants.dijkstra_less_memory
-    VERSION_DISCOUNTED_A_STAR = variants.discounted_a_star
+    VERSION_DISCOUNTED_A_STAR = variants.ddiscounte_a_star
 
 class Parameters(Enum):
     PARAM_TRACE_COST_FUNCTION = "trace_cost_function"
@@ -112,6 +112,7 @@ def apply(
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
     if parameters is None:
         parameters = {}
+    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     if isinstance(obj, Trace):
         return apply_trace(
             obj,
@@ -216,18 +217,9 @@ def apply_trace(
     return ali
 
 import requests
-import subprocess
 
 PROMETHEUS_URL = "http://prometheus-kube-prometheus-prometheus.monitoring:9090"
 
-def query_energy(pod_name: str):
-    query = f'kepler_container_joules_total{{pod_name="{pod_name}",mode="dynamic"}}[1s]'
-    url = f"{PROMETHEUS_URL}/api/v1/query"
-    response = requests.get(url, params={"query": query})
-    result = response.json()
-    print(result)
-    joules = float(result["data"]["result"][0]["value"][1])
-    return joules
 
 
 from kubernetes import client, config
@@ -321,22 +313,21 @@ def apply_log(
 
         t0_a = time.time()
         # Aktuelle Energie holen
-        pod = get_pods_by_label("app=python-example")[0]
-
-        before = float(query_energy(pod))
-        print(before)
 
 
-        # Alignment-Zeitbudget berechnen
+
+
+
+
+        align_time_max = 1
         this_max_align_time = min(
-            5,
+            align_time_max,
             (max_align_time - (time.time() - start_time)) * 0.5,
         )
 
         parameters[Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = this_max_align_time
 
 
-        # Alignment durchführen
         all_alignments.append(
             apply_trace(
                 trace,
@@ -353,16 +344,11 @@ def apply_log(
        # print("Zeit messen")
         #print(f"Trace {num_trace} Dauer: {t1_a - t0_a:.4f} Sekunden")
 
-        energy_joul = query_energy(pod)
-        energy_joul_per_trace_after = energy_joul / num_trace
+
+
 
        # print("ENERGY_IS PER TRACE AFTER ALGO IS: ")
-        after = float(query_energy(pod))
-        print(after)
-        delta = after - before
-        print("ENERGY")
-        print(delta)
-        print(f"Energieverbrauch Trace {num_trace}: {delta:.10f} Joule")
+
         #print(f"Energie Trace {num_trace}: {delta:.4f} J")
         #print("num_trace")
        # print(num_trace)
@@ -374,96 +360,6 @@ def apply_log(
         if progress is not None:
             progress.update()
 
-
-
-def apply_multiprocessing(
-    log,
-    petri_net,
-    initial_marking,
-    final_marking,
-    parameters=None,
-    variant=DEFAULT_VARIANT,
-):
-    """
-    Applies the alignments using a process pool (multiprocessing)
-
-    Parameters
-    ---------------
-    log
-        Event log
-    petri_net
-        Petri net
-    initial_marking
-        Initial marking
-    final_marking
-        Final marking
-    parameters
-        Parameters of the algorithm
-
-    Returns
-    ----------------
-    aligned_traces
-        Alignments
-    """
-    if parameters is None:
-        parameters = {}
-
-    import multiprocessing
-
-    variant = __variant_mapper(variant)
-
-    num_cores = exec_utils.get_param_value(
-        Parameters.CORES, parameters, multiprocessing.cpu_count() - 2
-    )
-
-    enable_best_worst_cost = exec_utils.get_param_value(
-        Parameters.ENABLE_BEST_WORST_COST, parameters, True
-    )
-
-    variants_idxs, one_tr_per_var = __get_variants_structure(log, parameters)
-
-    if enable_best_worst_cost:
-        best_worst_cost = __get_best_worst_cost(
-            petri_net, initial_marking, final_marking, variant, parameters
-        )
-        parameters[Parameters.BEST_WORST_COST_INTERNAL] = best_worst_cost
-
-    all_alignments = []
-
-    from concurrent.futures import ProcessPoolExecutor
-
-    with ProcessPoolExecutor(max_workers=num_cores) as executor:
-        futures = []
-        for trace in one_tr_per_var:
-            futures.append(
-                executor.submit(
-                    apply_trace,
-                    trace,
-                    petri_net,
-                    initial_marking,
-                    final_marking,
-                    parameters,
-                    str(variant),
-                )
-            )
-        progress = __get_progress_bar(len(one_tr_per_var), parameters)
-        if progress is not None:
-            alignments_ready = 0
-            while alignments_ready != len(futures):
-                current = 0
-                for index, variant in enumerate(futures):
-                    current = current + 1 if futures[index].done() else current
-                if current > alignments_ready:
-                    for i in range(0, current - alignments_ready):
-                        progress.update()
-                alignments_ready = current
-        for index, variant in enumerate(futures):
-            all_alignments.append(futures[index].result())
-        __close_progress_bar(progress)
-
-    alignments = __form_alignments(variants_idxs, all_alignments)
-
-    return alignments
 
 
 def __get_best_worst_cost(
@@ -545,25 +441,6 @@ def __get_progress_bar(num_variants, parameters):
             total=num_variants, desc="aligning log, completed variants :: "
         )
     return progress
-
-
-def __form_alignments(variants_idxs, all_alignments):
-    al_idx = {}
-    for index_variant, variant in enumerate(variants_idxs):
-        for trace_idx in variants_idxs[variant]:
-            al_idx[trace_idx] = all_alignments[index_variant]
-
-    alignments = []
-    for i in range(len(al_idx)):
-        alignments.append(al_idx[i])
-
-    return alignments
-
-
-def __close_progress_bar(progress):
-    if progress is not None:
-        progress.close()
-    del progress
 
 
 def get_diagnostics_dataframe(log, align_output, parameters=None):
