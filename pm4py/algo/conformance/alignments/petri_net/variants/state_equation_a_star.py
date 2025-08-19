@@ -633,12 +633,9 @@ def __search(
         t for t in sync_net.transitions if len(t.in_arcs) == 0
     )
 
-    print("JETZT ABER HOFFENTLICH")
-    print(max_align_time_trace)
-
     while not len(open_set) == 0:
         if (time.time() - start_time) > max_align_time_trace:
-            print("stop")
+            print("STOPPING!")
             print("time.time()")
             print(time.time())
             print("start_time")
@@ -650,6 +647,7 @@ def __search(
             print("STOP")
             return None
         
+        print("WORKING!")
         print("time.time()")
         print(time.time())
         print("start_time")

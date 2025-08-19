@@ -182,9 +182,6 @@ def apply_trace(
         
     )
 
-    print("VARIANT LILI")
-    print(exec_utils.get_variant(variant))
-    print(parameters)
     ali = exec_utils.get_variant(variant).apply(
         trace, petri_net, initial_marking, final_marking, parameters=parameters
     )
@@ -228,7 +225,6 @@ def query_energy(pod_name: str):
     url = f"{PROMETHEUS_URL}/api/v1/query"
     response = requests.get(url, params={"query": query})
     result = response.json()
-    print(result)
     joules = float(result["data"]["result"][0]["value"][1])
     return round(joules, 2)
 
@@ -328,11 +324,7 @@ def apply_log(
         energy_joul = query_energy(pod)
         energy_joul_per_trace = energy_joul / num_trace
 
-        print("ENERGY_IS PER TRACE BEFORE ALGO IS: ")
         before = query_energy(pod)
-        print(before)
-        print("num_trace")
-        print(num_trace)
 
         # 🔔 Wenn der Energieverbrauch pro Trace zu hoch wird → Warnung
         if energy_joul_per_trace > WARNING_THRESHOLD:
@@ -347,8 +339,6 @@ def apply_log(
 
         parameters[Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = this_max_align_time
 
-        print("MAX")
-        print(this_max_align_time)
 
         # Alignment durchführen
         all_alignments.append(
@@ -364,21 +354,21 @@ def apply_log(
 
         t1_a = time.time()
 
-        print("Zeit messen")
-        print(f"Trace {num_trace} Dauer: {t1_a - t0_a:.4f} Sekunden")
+       # print("Zeit messen")
+        #print(f"Trace {num_trace} Dauer: {t1_a - t0_a:.4f} Sekunden")
 
         energy_joul = query_energy(pod)
         energy_joul_per_trace_after = energy_joul / num_trace
 
-        print("ENERGY_IS PER TRACE AFTER ALGO IS: ")
+       # print("ENERGY_IS PER TRACE AFTER ALGO IS: ")
         after = query_energy(pod)
         delta = after - before
-        print(f"Energie Trace {num_trace}: {delta:.4f} J")
-        print("num_trace")
-        print(num_trace)
+        #print(f"Energie Trace {num_trace}: {delta:.4f} J")
+        #print("num_trace")
+       # print(num_trace)
 
-        print("DICT")
-        print(all_alignments[-1])
+       # print("DICT")
+       # print(all_alignments[-1])
 
 
         if progress is not None:
