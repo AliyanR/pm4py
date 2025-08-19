@@ -343,6 +343,9 @@ def apply_log(
 
         parameters[Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = this_max_align_time
 
+        print("MAX")
+        print(this_max_align_time)
+
         # Alignment durchführen
         all_alignments.append(
             apply_trace(

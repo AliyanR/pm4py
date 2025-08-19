@@ -659,6 +659,8 @@ def __dijkstra(
     """
     start_time = time.time()
 
+    print("TEST_CALL")
+
     trans_pre_dict = model_struct[TRANS_PRE_DICT]
     trans_post_dict = model_struct[TRANS_POST_DICT]
     trans_labels_dict = model_struct[TRANS_LABELS_DICT]
