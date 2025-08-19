@@ -221,7 +221,7 @@ import subprocess
 PROMETHEUS_URL = "http://prometheus-kube-prometheus-prometheus.monitoring:9090"
 
 
-def query_power(pod_name: str):
+def query_energy(pod_name: str):
     # Momentanleistung über 1-Sekunden-Fenster
     query = f'rate(kepler_container_joules_total{{pod_name="{pod_name}",mode="dynamic"}}[1s])'
     url = f"{PROMETHEUS_URL}/api/v1/query"
