@@ -166,7 +166,7 @@ def apply_from_variants_list(
     max_align_time_trace = exec_utils.get_param_value(
         Parameters.PARAM_MAX_ALIGN_TIME_TRACE, parameters, sys.maxsize
     )
-    align_time_max = 0.002
+    align_time_max = 0.005
     dictio_alignments = {}
     for varitem in var_list:
         this_max_align_time = min(
