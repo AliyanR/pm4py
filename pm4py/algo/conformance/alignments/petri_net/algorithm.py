@@ -312,7 +312,7 @@ def apply_log(
         num_trace += 1
 
         t0_a = time.time()
-        # Aktuelle Energie holen
+        # Aktuelle Energie holen bitte
 
 
 
