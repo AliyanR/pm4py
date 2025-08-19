@@ -220,17 +220,14 @@ import subprocess
 
 PROMETHEUS_URL = "http://prometheus-kube-prometheus-prometheus.monitoring:9090"
 
-
 def query_energy(pod_name: str):
-    # Momentanleistung über 1-Sekunden-Fenster
-    query = f'rate(kepler_container_joules_total{{pod_name="{pod_name}",mode="dynamic"}}[1s])'
+    query = f'kepler_container_joules_total{{pod_name="{pod_name}",mode="dynamic"}}[1s]'
     url = f"{PROMETHEUS_URL}/api/v1/query"
     response = requests.get(url, params={"query": query})
     result = response.json()
     print(result)
-    power_watt = float(result["data"]["result"][0]["value"][1])
-    return power_watt
-
+    joules = float(result["data"]["result"][0]["value"][1])
+    return joules
 
 
 from kubernetes import client, config
