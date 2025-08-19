@@ -166,12 +166,11 @@ def apply_from_variants_list(
     max_align_time_trace = exec_utils.get_param_value(
         Parameters.PARAM_MAX_ALIGN_TIME_TRACE, parameters, sys.maxsize
     )
-    align_time_max=5
-    max_align_time_trace
+    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     dictio_alignments = {}
     for varitem in var_list:
         this_max_align_time = min(
-            max_align_time_trace,
+            align_time_max,
             (max_align_time - (time.time() - start_time)) * 0.5,
         )
         variant = varitem[0]
