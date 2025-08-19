@@ -549,6 +549,9 @@ def __dijkstra(
     opt_cost = sys.maxsize
     visited_sequences = set()
 
+    print("DAS IST TEST")
+    print(max_align_time_trace)
+
     while not len(open_set) == 0:
         if (time.time() - start_time) > max_align_time_trace:
             return None
