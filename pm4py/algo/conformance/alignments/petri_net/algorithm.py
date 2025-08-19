@@ -226,7 +226,7 @@ def query_energy(pod_name: str):
     response = requests.get(url, params={"query": query})
     result = response.json()
     joules = float(result["data"]["result"][0]["value"][1])
-    return round(joules, 2)
+    return joules
 
 
 from kubernetes import client, config
@@ -321,15 +321,9 @@ def apply_log(
         t0_a = time.time()
         # Aktuelle Energie holen
         pod = get_pods_by_label("app=python-example")[0]
-        energy_joul = query_energy(pod)
-        energy_joul_per_trace = energy_joul / num_trace
 
         before = query_energy(pod)
 
-        # 🔔 Wenn der Energieverbrauch pro Trace zu hoch wird → Warnung
-        if energy_joul_per_trace > WARNING_THRESHOLD:
-            print(f"⚠️ WARNING: Energieverbrauch pro Trace ({energy_joul_per_trace:.2f} J) "
-                f"überschreitet Threshold {WARNING_THRESHOLD} J!")
 
         # Alignment-Zeitbudget berechnen
         this_max_align_time = min(
@@ -363,6 +357,8 @@ def apply_log(
        # print("ENERGY_IS PER TRACE AFTER ALGO IS: ")
         after = query_energy(pod)
         delta = after - before
+        print("ENERGY")
+        print(delta)
         #print(f"Energie Trace {num_trace}: {delta:.4f} J")
         #print("num_trace")
        # print(num_trace)
