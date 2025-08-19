@@ -221,11 +221,10 @@ import subprocess
 PROMETHEUS_URL = "http://prometheus-kube-prometheus-prometheus.monitoring:9090"
 
 def query_energy(pod_name: str):
-    query = f'kepler_container_joules_total{{pod_name="{pod_name}"}}'
+    query = f'kepler_container_joules_total{{pod_name="{pod_name}",mode="dynamic"}}'
     url = f"{PROMETHEUS_URL}/api/v1/query"
     response = requests.get(url, params={"query": query})
     result = response.json()
-    print(result)
     joules = float(result["data"]["result"][0]["value"][1])
     return joules
 
