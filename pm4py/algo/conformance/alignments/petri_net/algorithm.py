@@ -367,8 +367,8 @@ def apply_log(
         #print("num_trace")
        # print(num_trace)
 
-       # print("DICT")
-       # print(all_alignments[-1])
+        print("DICT")
+        print(all_alignments[-1])
 
 
         if progress is not None:
