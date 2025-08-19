@@ -301,7 +301,7 @@ def apply_log(
     max_align_time = exec_utils.get_param_value(
         Parameters.PARAM_MAX_ALIGN_TIME, parameters, sys.maxsize
     )
-    max_align_time_case = 0.001
+    max_align_time_case = 5
 
     variants_idxs, one_tr_per_var = __get_variants_structure(log, parameters)
     progress = __get_progress_bar(len(one_tr_per_var), parameters)
@@ -333,7 +333,7 @@ def apply_log(
 
         # Alignment-Zeitbudget berechnen
         this_max_align_time = min(
-            0.001,
+            5,
             (max_align_time - (time.time() - start_time)) * 0.5,
         )
 
