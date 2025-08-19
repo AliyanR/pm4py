@@ -48,7 +48,7 @@ class Variants(Enum):
     VERSION_STATE_EQUATION_A_STAR = variants.state_equation_a_star
     VERSION_DIJKSTRA_NO_HEURISTICS = variants.dijkstra_no_heuristics
     VERSION_DIJKSTRA_LESS_MEMORY = variants.dijkstra_less_memory
-    VERSION_DISCOUNTED_A_STAR = variants.ddiscounte_a_star
+    VERSION_DISCOUNTED_A_STAR = variants.discounted_a_star
 
 class Parameters(Enum):
     PARAM_TRACE_COST_FUNCTION = "trace_cost_function"
