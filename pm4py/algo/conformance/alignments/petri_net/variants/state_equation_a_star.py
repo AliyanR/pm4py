@@ -638,6 +638,7 @@ def __search(
 
     while not len(open_set) == 0:
         if (time.time() - start_time) > max_align_time_trace:
+            print("STOP")
             return None
 
         curr = heapq.heappop(open_set)
