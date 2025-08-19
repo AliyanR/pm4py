@@ -225,6 +225,7 @@ def query_energy(pod_name: str):
     url = f"{PROMETHEUS_URL}/api/v1/query"
     response = requests.get(url, params={"query": query})
     result = response.json()
+    print(result)
     joules = float(result["data"]["result"][0]["value"][1])
     return joules
 
