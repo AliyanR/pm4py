@@ -179,8 +179,12 @@ def apply_trace(
 
     enable_best_worst_cost = exec_utils.get_param_value(
         Parameters.ENABLE_BEST_WORST_COST, parameters, True
+        
     )
 
+    print("VARIANT LILI")
+    print(exec_utils.get_variant(variant))
+    print(parameters)
     ali = exec_utils.get_variant(variant).apply(
         trace, petri_net, initial_marking, final_marking, parameters=parameters
     )
