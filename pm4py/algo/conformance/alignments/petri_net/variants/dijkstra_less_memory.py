@@ -696,6 +696,8 @@ def __dijkstra(
     while not len(open_set) == 0:
         if (time.time() - start_time) > max_align_time_trace:
             return None
+        print("MAX")
+        print(max_align_time_trace)
         curr = heapq.heappop(open_set)
         curr_m0 = curr[POSITION_MARKING]
         curr_m = __decode_marking(curr_m0)
