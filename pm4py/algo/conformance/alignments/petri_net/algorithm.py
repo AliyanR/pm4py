@@ -322,7 +322,8 @@ def apply_log(
         # Aktuelle Energie holen
         pod = get_pods_by_label("app=python-example")[0]
 
-        before = query_energy(pod)
+        before = float(query_energy(pod))
+        print(before)
 
 
         # Alignment-Zeitbudget berechnen
@@ -355,10 +356,12 @@ def apply_log(
         energy_joul_per_trace_after = energy_joul / num_trace
 
        # print("ENERGY_IS PER TRACE AFTER ALGO IS: ")
-        after = query_energy(pod)
+        after = float(query_energy(pod))
+        print(after)
         delta = after - before
         print("ENERGY")
         print(delta)
+        print(f"Energieverbrauch Trace {num_trace}: {delta:.6f} Joule")
         #print(f"Energie Trace {num_trace}: {delta:.4f} J")
         #print("num_trace")
        # print(num_trace)
