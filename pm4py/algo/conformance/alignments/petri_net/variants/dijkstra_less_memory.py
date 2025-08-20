@@ -13,7 +13,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see this software project's root or
+align_time_max = 0.001
 visit <https://www.gnu.org/licenses/>.
 
 Website: https://processintelligence.solutions
