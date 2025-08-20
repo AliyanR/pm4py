@@ -166,7 +166,7 @@ def apply_trace(
             mapping of each index of the trace to a positive cost value
     Returns
     -----------
-    align_time_max = 0.3
+    align_time_max = 0.35
         :class:`dict` with keys **alignment**, **cost**, **visited_states**, **queued_states** and
         **traversed_arcs**
         The alignment is a sequence of labels of the form (a,t), (a,>>), or (>>,t)
