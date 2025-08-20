@@ -653,7 +653,7 @@ def __dijkstra(
     Returns
     --------------
     alignment
-        Alignment of the trace, including:
+        Alignment of tkhe trace, including:
             alignment: the sequence of moves
             queued: the number of states that have been queued
             visited: the number of states that have been visited
