@@ -112,7 +112,7 @@ def apply(
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
     if parameters is None:
         parameters = {}
-    variant = Variants.VERSION_STATE_EQUATION_A_STAR
+    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     if isinstance(obj, Trace):
         return apply_trace(
             obj,
@@ -306,7 +306,7 @@ def apply_log(
         parameters[Parameters.BEST_WORST_COST_INTERNAL] = best_worst_cost
 
     all_alignments = []
-    WARNING_THRESHOLD = 5000  # Joule pro Trace – hier beliebiger Schwellwert
+    WARNING_THRESHOLD = 5000  # Joule pro Trace – hier beliebiger Sc5hwellw#ert
     num_trace = 0
     for trace in one_tr_per_var:
         num_trace += 1
