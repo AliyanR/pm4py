@@ -848,7 +848,7 @@ def __reconstruct_alignment(
     curr
         Current state (final state)
     model_struct
-        Efficient data structure for the model
+        Efficient dkata structure for the model
     trace_struct
         Efficient data structure for the trace
     visited
