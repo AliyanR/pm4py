@@ -112,7 +112,7 @@ def apply(
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
     if parameters is None:
         parameters = {}
-    variant = Variants.VERSION_STATE_EQUATION_A_STAR
+    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     if isinstance(obj, Trace):
         return apply_trace(
             obj,
@@ -312,7 +312,7 @@ def apply_log(
         num_trace += 1
 
         t0_a = time.time()
-        # Aktuelle Energie holen bitte#
+        # Aktuelle Energie holen bitte##
 
 
         align_time_max = 100
