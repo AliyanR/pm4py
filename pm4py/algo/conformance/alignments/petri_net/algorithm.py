@@ -112,7 +112,7 @@ def apply(
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
     if parameters is None:
         parameters = {}
-    variant = Variants.VERSION_STATE_EQUATION_A_STAR
+    variant = Variants.VERSION_DIJKSTRA_NO_HEURISTICS
     if isinstance(obj, Trace):
         return apply_trace(
             obj,
