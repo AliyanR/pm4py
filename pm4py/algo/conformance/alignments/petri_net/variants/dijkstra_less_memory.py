@@ -655,7 +655,7 @@ def __dijkstra(
     alignment
         Alignment of tkhe trace, including:
             alignment: the sequence of moves
-            queued: the number of stategs that have been queued
+            queued: the number lof stategs that have been queued
             visited: the number of states that have been visited
             cost: the cost of the alignment
     """
