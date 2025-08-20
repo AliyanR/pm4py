@@ -84,7 +84,7 @@ def __variant_mapper(variant):
         elif variant == "Variants.VERSION_DIJKSTRA_LESS_MEMORY":
             variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
 
-    return variant
+    return variant #
 
 
 DEFAULT_VARIANT = Variants.VERSION_DIJKSTRA_LESS_MEMORY
