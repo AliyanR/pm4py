@@ -319,7 +319,7 @@ def apply_log(
 
 
 
-        align_time_max = 1
+        align_time_max = 100
         this_max_align_time = min(
             align_time_max,
             (max_align_time - (time.time() - start_time)) * 0.5,

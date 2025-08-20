@@ -328,7 +328,6 @@ def apply_from_variants_list(
     dictio_alignments = {}
     for varitem in var_list:
         this_max_align_time = min(
-            max_align_time_trace,
             (max_align_time - (time.time() - start_time)) * 0.5,
         )
         variant = varitem[0]
