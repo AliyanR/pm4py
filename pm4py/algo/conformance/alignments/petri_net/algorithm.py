@@ -112,7 +112,7 @@ def apply(
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
     if parameters is None:
         parameters = {}
-    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
+    variant = Variants.VERSION_STATE_EQUATION_A_STAR
     if isinstance(obj, Trace):
         return apply_trace(
             obj,
@@ -166,7 +166,7 @@ def apply_trace(
             mapping of each index of the trace to a positive cost value
     Returns
     -----------
-    align_time_max = 0.4
+    align_time_max = 0.001
         :class:`dict` with keys **alignment**, **cost**, **visited_states**, **queued_states** and
         **traversed_arcs**
         The alignment is a sequence of labels of the form (a,t), (a,>>), or (>>,t)
