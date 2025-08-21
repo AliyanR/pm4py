@@ -306,7 +306,7 @@ def apply_log(
         parameters[Parameters.BEST_WORST_COST_INTERNAL] = best_worst_cost
 
     all_alignments = []
-    WARNING_THRESHOLD = 5000  # Joule pro Tra###ce# – hier beliebiger Sc5hlwellw#ert
+    WARNING_THRESHOLD = 5000  # Joule pro Tra###ce# – hier beliebiger Sc5hlweöllw#ert
     num_trace = 0
     for trace in one_tr_per_var:
         num_trace += 1
