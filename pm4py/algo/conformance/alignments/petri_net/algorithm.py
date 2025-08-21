@@ -86,7 +86,7 @@ def __variant_mapper(variant):
 
     return variant #
 
-
+#
 DEFAULT_VARIANT = Variants.VERSION_DIJKSTRA_LESS_MEMORY
 if solver.DEFAULT_LP_SOLVER_VARIANT is not None:
     DEFAULT_VARIANT = __variant_mapper(constants.DEFAULT_ALIGNMENTS_VARIANT)
