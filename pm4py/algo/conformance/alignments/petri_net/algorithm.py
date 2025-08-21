@@ -100,7 +100,7 @@ VERSIONS = {
     Variants.VERSION_DIJKSTRA_NO_HEURISTICS,
     Variants.VERSION_DIJKSTRA_LESS_MEMORY,
 }
-#######
+########
 
 def apply(
     obj: Union[EventLog, EventStream, pd.DataFrame, Trace],
@@ -112,7 +112,7 @@ def apply(
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
     if parameters is None:
         parameters = {}
-    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
+    variant = Variants.VERSION_STATE_EQUATION_A_STAR
     if isinstance(obj, Trace):
         return apply_trace(
             obj,
