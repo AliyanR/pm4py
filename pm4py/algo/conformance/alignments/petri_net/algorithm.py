@@ -72,7 +72,7 @@ class Parameters(Enum):
     FITNESS_ROUND_DIGITS = "fitness_round_digits"
     SYNCHRONOUS = "synchronous_dijkstra"
     EXPONENT="theta"
-    ENABLE_BEST_WORST_COST = "enable_best_worst_cost" ####
+    ENABLE_BEST_WORST_COST = "enable_best_worst_cost" #####
 
 
 def __variant_mapper(variant):
@@ -315,7 +315,7 @@ def apply_log(
         # Aktuelle Energie holen bitte####
 
 
-        align_time_max = 100
+        align_time_max = 0.001
         this_max_align_time = min(
             align_time_max,
             (max_align_time - (time.time() - start_time)) * 0.5,
