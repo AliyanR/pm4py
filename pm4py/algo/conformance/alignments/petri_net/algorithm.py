@@ -142,7 +142,7 @@ def apply_trace(
     variant=DEFAULT_VARIANT,
 ):
     """
-    apply alignments to a trace
+    apply alignments to a tracel
     Parameters
     -----------
     trace
