@@ -312,10 +312,10 @@ def apply_log(
         num_trace += 1
 
         t0_a = time.time()
-        # Aktuelle Energie holen bitte####
+        # Aktuelle Energie holen bitte#####
 
 
-        align_time_max = 0.001
+        align_time_max = 9999999
         this_max_align_time = min(
             align_time_max,
             (max_align_time - (time.time() - start_time)) * 0.5,
