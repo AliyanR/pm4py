@@ -72,7 +72,7 @@ class Parameters(Enum):
     FITNESS_ROUND_DIGITS = "fitness_round_digits"
     SYNCHRONOUS = "synchronous_dijkstra"
     EXPONENT="theta"
-    ENABLE_BEST_WORST_COST = "enable_best_worst_cost" #####
+    ENABLE_BEST_WORST_COST = "enable_best_worst_cost" ######
 
 
 def __variant_mapper(variant):
