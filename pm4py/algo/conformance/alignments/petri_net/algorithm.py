@@ -100,7 +100,7 @@ VERSIONS = {
     Variants.VERSION_DIJKSTRA_NO_HEURISTICS,
     Variants.VERSION_DIJKSTRA_LESS_MEMORY,
 }
-#####
+######
 
 def apply(
     obj: Union[EventLog, EventStream, pd.DataFrame, Trace],
