@@ -351,7 +351,6 @@ def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False
     decorate_transitions_prepostset(sync_net)
     decorate_places_preset_trans(sync_net)
     closed = {}
-    print(expo)
 
     ini_state = utils.DijkstraSearchTuple(0, ini, None, None, 0)
     open_set = [ini_state]
@@ -361,10 +360,10 @@ def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False
     traversed = 0
 
     def cost_function(t, l, expo=None):
-        if t.label is None or t.label[0] == utils.SKIP or t.label[1] == utils.SKIP:
-            return math.exp(-0.3 * (l ** 1.5))  # viel stärkerer Abfall
-        else:
-            return 0
+        if l > 20:
+            return 0  # ab hier: keine Kosten mehr → extrem aggressiv
+        return math.exp(-0.4 * (l ** 2.0)) if t.label is None or t.label[0] == utils.SKIP or t.label[1] == utils.SKIP else 0
+
 
 
     trans_empty_preset = set(t for t in sync_net.transitions if len(t.in_arcs) == 0)
