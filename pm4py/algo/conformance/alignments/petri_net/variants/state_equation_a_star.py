@@ -617,7 +617,7 @@ def __search(
         incidence_matrix,
         ini,
         fin_vec,
-        lp_solver.DEFAULT_LP_SOLVER_VARIANT,
+        lp_solver.CVXOPT_SOLVER_CUSTOM_ALIGN,
         use_cvxopt=use_cvxopt,
     )
     ini_state = utils.SearchTuple(0 + h, 0, h, ini, None, None, x, True)
@@ -659,7 +659,7 @@ def __search(
                 incidence_matrix,
                 curr.m,
                 fin_vec,
-                lp_solver.DEFAULT_LP_SOLVER_VARIANT,
+                lp_solver.CVXOPT_SOLVER_CUSTOM_ALIGN,
                 use_cvxopt=use_cvxopt,
             )
             lp_solved += 1
