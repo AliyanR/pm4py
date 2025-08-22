@@ -110,7 +110,7 @@ def apply(
     parameters: Optional[Dict[Any, Any]] = None,
     variant=DEFAULT_VARIANT,
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
-    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
+    variant = Variants.VERSION_STATE_EQUATION_A_STAR
     print(variant)
     if parameters is None:
         parameters = {}
