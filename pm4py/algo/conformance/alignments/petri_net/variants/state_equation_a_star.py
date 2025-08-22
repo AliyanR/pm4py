@@ -575,8 +575,6 @@ def __search(
     max_align_time_trace=sys.maxsize,
 ):
     start_time = time.time()
-    print("A STAR")
-
     decorate_transitions_prepostset(sync_net)
     decorate_places_preset_trans(sync_net)
 
