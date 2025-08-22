@@ -34,6 +34,7 @@ from copy import copy
 from enum import Enum
 import sys
 from pm4py.util.constants import PARAMETER_CONSTANT_ACTIVITY_KEY
+import math
 
 '''
 This version sets a specific heuristic whom paper description is under submission.
@@ -360,11 +361,9 @@ def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False
     traversed = 0
 
     def cost_function(t,l, expo):
-        if t.label is None:
-            return expo**(-l)
-        if t.label[1]==utils.SKIP or  t.label[0]==utils.SKIP:
-            return expo**(-l)
-        else :
+        if t.label is None or t.label[0] == utils.SKIP or t.label[1] == utils.SKIP:
+            return 1 / math.log2(l + 2)  # +2 damit l=0 nicht knallt
+        else:
             return 0
 
     trans_empty_preset = set(t for t in sync_net.transitions if len(t.in_arcs) == 0)
