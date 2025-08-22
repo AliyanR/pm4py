@@ -360,11 +360,12 @@ def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False
     queued = 0
     traversed = 0
 
-    def cost_function(t,l, expo):
+    def cost_function(t, l, expo=None):
         if t.label is None or t.label[0] == utils.SKIP or t.label[1] == utils.SKIP:
-            return 1 / math.log2(l + 2)  # +2 damit l=0 nicht knallt
+            return math.exp(-0.3 * (l ** 1.5))  # viel stärkerer Abfall
         else:
             return 0
+
 
     trans_empty_preset = set(t for t in sync_net.transitions if len(t.in_arcs) == 0)
 
