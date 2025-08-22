@@ -360,9 +360,7 @@ def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False
     traversed = 0
 
     def cost_function(t, l, expo=None):
-        if l > 20:
-            return 0  # ab hier: keine Kosten mehr → extrem aggressiv
-        return math.exp(-0.4 * (l ** 2.0)) if t.label is None or t.label[0] == utils.SKIP or t.label[1] == utils.SKIP else 0
+        return 0
 
 
 
