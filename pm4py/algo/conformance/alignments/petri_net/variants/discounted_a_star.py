@@ -137,10 +137,11 @@ def apply(trace, petri_net, initial_marking, final_marking, parameters=None):
             sync_cost_function = dict()
             for t in petri_net.transitions:
                 if t.label is not None:
-                    model_cost_function[t] = utils.STD_MODEL_LOG_MOVE_COST
+                    model_cost_function[t] = 5  # statt utils.STD_MODEL_LOG_MOVE_COST (typisch: 1)
                     sync_cost_function[t] = 0
                 else:
-                    model_cost_function[t] = utils.STD_TAU_COST
+                    model_cost_function[t] = 10  # höhere Kosten für invisible/tau-Moves
+
             parameters[Parameters.PARAM_MODEL_COST_FUNCTION] = model_cost_function
             parameters[Parameters.PARAM_SYNC_COST_FUNCTION] = sync_cost_function
 
