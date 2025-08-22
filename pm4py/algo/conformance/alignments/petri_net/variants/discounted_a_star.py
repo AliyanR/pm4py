@@ -420,6 +420,7 @@ def __search_without_synchr(net, ini, fin, log_trace, skip= utils.SKIP, ret_tupl
     Should we keep the entire trace or cut it?
     Notice that the heuristic on marking reachability is ON
     '''
+    print("DISCOUNT")
     trace = [log_trace[i]["concept:name"] for i in range(len(log_trace))]
     start_time = time.time()
     decorate_transitions_prepostset(net)
