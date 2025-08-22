@@ -110,6 +110,8 @@ def apply(
     parameters: Optional[Dict[Any, Any]] = None,
     variant=DEFAULT_VARIANT,
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
+    print("variant")
+    print(variant)
     if parameters is None:
         parameters = {}
     if isinstance(obj, Trace):
