@@ -112,6 +112,7 @@ def apply(
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
     print("variant")
     print(variant)
+    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     if parameters is None:
         parameters = {}
     if isinstance(obj, Trace):
