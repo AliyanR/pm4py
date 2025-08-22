@@ -34,7 +34,6 @@ from copy import copy
 from enum import Enum
 import sys
 from pm4py.util.constants import PARAMETER_CONSTANT_ACTIVITY_KEY
-import math
 
 '''
 This version sets a specific heuristic whom paper description is under submission.
@@ -351,6 +350,7 @@ def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False
     decorate_transitions_prepostset(sync_net)
     decorate_places_preset_trans(sync_net)
     closed = {}
+    print(expo)
 
     ini_state = utils.DijkstraSearchTuple(0, ini, None, None, 0)
     open_set = [ini_state]
@@ -359,10 +359,13 @@ def __search_with_synchr(sync_net, ini, fin, skip, ret_tuple_as_trans_desc=False
     queued = 0
     traversed = 0
 
-    def cost_function(t, l, expo=None):
-        return 0
-
-
+    def cost_function(t,l, expo):
+        if t.label is None:
+            return expo**(-l)
+        if t.label[1]==utils.SKIP or  t.label[0]==utils.SKIP:
+            return expo**(-l)
+        else :
+            return 0
 
     trans_empty_preset = set(t for t in sync_net.transitions if len(t.in_arcs) == 0)
 
