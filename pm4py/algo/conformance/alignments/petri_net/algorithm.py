@@ -110,7 +110,7 @@ def apply(
     parameters: Optional[Dict[Any, Any]] = None,
     variant=DEFAULT_VARIANT,
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
-    variant = Variants.VERSION_DIJKSTRA_NO_HEURISTICS
+    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     print(variant)
     if parameters is None:
         parameters = {}
@@ -287,7 +287,7 @@ def apply_log(
     all_alignments = []
     for trace in one_tr_per_var:
         this_max_align_time = min(
-            max_align_time_case,
+            0.001,
             (max_align_time - (time.time() - start_time)) * 0.5,
         )
         parameters[Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = this_max_align_time
