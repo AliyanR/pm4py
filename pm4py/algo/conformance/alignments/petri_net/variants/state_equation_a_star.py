@@ -131,100 +131,6 @@ def __trace_key(trace, activity_key):
     """Erzeuge stabilen Schlüssel nur aus Aktivitätsfolge."""
     return tuple(ev[activity_key] for ev in trace)
 
-# def apply(
-#     trace: Trace,
-#     petri_net: PetriNet,
-#     initial_marking: Marking,
-#     final_marking: Marking,
-#     parameters: Optional[Dict[Union[str, Parameters], Any]] = None,
-# ) -> typing.AlignmentResult:
-#     """
-#     Performs the basic alignment search with A*,
-#     now with caching support.
-#     """
-#     if parameters is None:
-#         parameters = {}
-
-#     activity_key = exec_utils.get_param_value(
-#         Parameters.ACTIVITY_KEY, parameters, DEFAULT_NAME_KEY
-#     )
-#     trace_cost_function = exec_utils.get_param_value(
-#         Parameters.PARAM_TRACE_COST_FUNCTION, parameters, None
-#     )
-#     model_cost_function = exec_utils.get_param_value(
-#         Parameters.PARAM_MODEL_COST_FUNCTION, parameters, None
-#     )
-#     trace_net_constr_function = exec_utils.get_param_value(
-#         Parameters.TRACE_NET_CONSTR_FUNCTION, parameters, None
-#     )
-#     trace_net_cost_aware_constr_function = exec_utils.get_param_value(
-#         Parameters.TRACE_NET_COST_AWARE_CONSTR_FUNCTION,
-#         parameters,
-#         construct_trace_net_cost_aware,
-#     )
-
-#     # --- Cache Key bauen ---
-#     cache_key = (
-#         id(petri_net),
-#         id(initial_marking),
-#         id(final_marking),
-#         str(activity_key),
-#         __trace_key(trace, activity_key),
-#     )
-#     if cache_key in alignment_cache:
-#         return alignment_cache[cache_key]
-
-#     # --- Kostenfunktionen vorbereiten ---
-#     if trace_cost_function is None:
-#         trace_cost_function = [
-#             utils.STD_MODEL_LOG_MOVE_COST for _ in trace
-#         ]
-#         parameters[Parameters.PARAM_TRACE_COST_FUNCTION] = trace_cost_function
-
-#     if model_cost_function is None:
-#         model_cost_function = dict()
-#         sync_cost_function = dict()
-#         for t in petri_net.transitions:
-#             if t.label is not None:
-#                 model_cost_function[t] = utils.STD_MODEL_LOG_MOVE_COST
-#                 sync_cost_function[t] = utils.STD_SYNC_COST
-#             else:
-#                 model_cost_function[t] = utils.STD_TAU_COST
-#         parameters[Parameters.PARAM_MODEL_COST_FUNCTION] = model_cost_function
-#         parameters[Parameters.PARAM_SYNC_COST_FUNCTION] = sync_cost_function
-
-#     # --- Trace-Netz konstruieren ---
-#     if trace_net_constr_function is not None:
-#         trace_net, trace_im, trace_fm = trace_net_constr_function(
-#             trace, activity_key=activity_key
-#         )
-#     else:
-#         (
-#             trace_net,
-#             trace_im,
-#             trace_fm,
-#             parameters[Parameters.PARAM_TRACE_NET_COSTS],
-#         ) = trace_net_cost_aware_constr_function(
-#             trace, trace_cost_function, activity_key=activity_key
-#         )
-
-#     # --- Alignment berechnen ---
-#     alignment = apply_trace_net(
-#         petri_net,
-#         initial_marking,
-#         final_marking,
-#         trace_net,
-#         trace_im,
-#         trace_fm,
-#         parameters,
-#     )
-
-#     # --- Nur sinnvolle Ergebnisse cachen ---
-#     if alignment is not None:
-#         alignment_cache[cache_key] = alignment
-
-#     return alignment
-
 def apply(
     trace: Trace,
     petri_net: PetriNet,
@@ -233,26 +139,8 @@ def apply(
     parameters: Optional[Dict[Union[str, Parameters], Any]] = None,
 ) -> typing.AlignmentResult:
     """
-    Performs the basic alignment search, given a trace and a net.
-
-    Parameters
-    ----------
-    trace: :class:`list` input trace, assumed to be a list of events (i.e. the code will use the activity key
-    to get the attributes)
-    petri_net: :class:`pm4py.objects.petri.net.PetriNet` the Petri net to use in the alignment
-    initial_marking: :class:`pm4py.objects.petri.net.Marking` initial marking in the Petri net
-    final_marking: :class:`pm4py.objects.petri.net.Marking` final marking in the Petri net
-    parameters: :class:`dict` (optional) dictionary containing one of the following:
-        Parameters.PARAM_TRACE_COST_FUNCTION: :class:`list` (parameter) mapping of each index of the trace to a positive cost value
-        Parameters.PARAM_MODEL_COST_FUNCTION: :class:`dict` (parameter) mapping of each transition in the model to corresponding
-        model cost
-        Parameters.PARAM_SYNC_COST_FUNCTION: :class:`dict` (parameter) mapping of each transition in the model to corresponding
-        synchronous costs
-        Parameters.ACTIVITY_KEY: :class:`str` (parameter) key to use to identify the activity described by the events
-
-    Returns
-    -------
-    dictionary: `dict` with keys **alignment**, **cost**, **visited_states**, **queued_states** and **traversed_arcs**
+    Performs the basic alignment search with A*,
+    now with caching support.
     """
     if parameters is None:
         parameters = {}
@@ -275,14 +163,25 @@ def apply(
         construct_trace_net_cost_aware,
     )
 
+    # --- Cache Key bauen ---
+    cache_key = (
+        id(petri_net),
+        id(initial_marking),
+        id(final_marking),
+        str(activity_key),
+        __trace_key(trace, activity_key),
+    )
+    if cache_key in alignment_cache:
+        return alignment_cache[cache_key]
+
+    # --- Kostenfunktionen vorbereiten ---
     if trace_cost_function is None:
-        trace_cost_function = list(
-            map(lambda e: utils.STD_MODEL_LOG_MOVE_COST, trace)
-        )
+        trace_cost_function = [
+            utils.STD_MODEL_LOG_MOVE_COST for _ in trace
+        ]
         parameters[Parameters.PARAM_TRACE_COST_FUNCTION] = trace_cost_function
 
     if model_cost_function is None:
-        # reset variables value
         model_cost_function = dict()
         sync_cost_function = dict()
         for t in petri_net.transitions:
@@ -294,9 +193,8 @@ def apply(
         parameters[Parameters.PARAM_MODEL_COST_FUNCTION] = model_cost_function
         parameters[Parameters.PARAM_SYNC_COST_FUNCTION] = sync_cost_function
 
+    # --- Trace-Netz konstruieren ---
     if trace_net_constr_function is not None:
-        # keep the possibility to pass TRACE_NET_CONSTR_FUNCTION in this old
-        # version
         trace_net, trace_im, trace_fm = trace_net_constr_function(
             trace, activity_key=activity_key
         )
@@ -310,6 +208,7 @@ def apply(
             trace, trace_cost_function, activity_key=activity_key
         )
 
+    # --- Alignment berechnen ---
     alignment = apply_trace_net(
         petri_net,
         initial_marking,
@@ -320,7 +219,108 @@ def apply(
         parameters,
     )
 
+    # --- Nur sinnvolle Ergebnisse cachen ---
+    if alignment is not None:
+        alignment_cache[cache_key] = alignment
+
     return alignment
+
+# def apply(
+#     trace: Trace,
+#     petri_net: PetriNet,
+#     initial_marking: Marking,
+#     final_marking: Marking,
+#     parameters: Optional[Dict[Union[str, Parameters], Any]] = None,
+# ) -> typing.AlignmentResult:
+#     """
+#     Performs the basic alignment search, given a trace and a net.
+
+#     Parameters
+#     ----------
+#     trace: :class:`list` input trace, assumed to be a list of events (i.e. the code will use the activity key
+#     to get the attributes)
+#     petri_net: :class:`pm4py.objects.petri.net.PetriNet` the Petri net to use in the alignment
+#     initial_marking: :class:`pm4py.objects.petri.net.Marking` initial marking in the Petri net
+#     final_marking: :class:`pm4py.objects.petri.net.Marking` final marking in the Petri net
+#     parameters: :class:`dict` (optional) dictionary containing one of the following:
+#         Parameters.PARAM_TRACE_COST_FUNCTION: :class:`list` (parameter) mapping of each index of the trace to a positive cost value
+#         Parameters.PARAM_MODEL_COST_FUNCTION: :class:`dict` (parameter) mapping of each transition in the model to corresponding
+#         model cost
+#         Parameters.PARAM_SYNC_COST_FUNCTION: :class:`dict` (parameter) mapping of each transition in the model to corresponding
+#         synchronous costs
+#         Parameters.ACTIVITY_KEY: :class:`str` (parameter) key to use to identify the activity described by the events
+
+#     Returns
+#     -------
+#     dictionary: `dict` with keys **alignment**, **cost**, **visited_states**, **queued_states** and **traversed_arcs**
+#     """
+#     if parameters is None:
+#         parameters = {}
+
+#     activity_key = exec_utils.get_param_value(
+#         Parameters.ACTIVITY_KEY, parameters, DEFAULT_NAME_KEY
+#     )
+#     trace_cost_function = exec_utils.get_param_value(
+#         Parameters.PARAM_TRACE_COST_FUNCTION, parameters, None
+#     )
+#     model_cost_function = exec_utils.get_param_value(
+#         Parameters.PARAM_MODEL_COST_FUNCTION, parameters, None
+#     )
+#     trace_net_constr_function = exec_utils.get_param_value(
+#         Parameters.TRACE_NET_CONSTR_FUNCTION, parameters, None
+#     )
+#     trace_net_cost_aware_constr_function = exec_utils.get_param_value(
+#         Parameters.TRACE_NET_COST_AWARE_CONSTR_FUNCTION,
+#         parameters,
+#         construct_trace_net_cost_aware,
+#     )
+
+#     if trace_cost_function is None:
+#         trace_cost_function = list(
+#             map(lambda e: utils.STD_MODEL_LOG_MOVE_COST, trace)
+#         )
+#         parameters[Parameters.PARAM_TRACE_COST_FUNCTION] = trace_cost_function
+
+#     if model_cost_function is None:
+#         # reset variables value
+#         model_cost_function = dict()
+#         sync_cost_function = dict()
+#         for t in petri_net.transitions:
+#             if t.label is not None:
+#                 model_cost_function[t] = utils.STD_MODEL_LOG_MOVE_COST
+#                 sync_cost_function[t] = utils.STD_SYNC_COST
+#             else:
+#                 model_cost_function[t] = utils.STD_TAU_COST
+#         parameters[Parameters.PARAM_MODEL_COST_FUNCTION] = model_cost_function
+#         parameters[Parameters.PARAM_SYNC_COST_FUNCTION] = sync_cost_function
+
+#     if trace_net_constr_function is not None:
+#         # keep the possibility to pass TRACE_NET_CONSTR_FUNCTION in this old
+#         # version
+#         trace_net, trace_im, trace_fm = trace_net_constr_function(
+#             trace, activity_key=activity_key
+#         )
+#     else:
+#         (
+#             trace_net,
+#             trace_im,
+#             trace_fm,
+#             parameters[Parameters.PARAM_TRACE_NET_COSTS],
+#         ) = trace_net_cost_aware_constr_function(
+#             trace, trace_cost_function, activity_key=activity_key
+#         )
+
+#     alignment = apply_trace_net(
+#         petri_net,
+#         initial_marking,
+#         final_marking,
+#         trace_net,
+#         trace_im,
+#         trace_fm,
+#         parameters,
+#     )
+
+#     return alignment
 
 
 def apply_from_variant(
