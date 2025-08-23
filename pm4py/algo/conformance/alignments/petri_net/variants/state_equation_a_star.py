@@ -123,7 +123,7 @@ def get_best_worst_cost(
 
     return None
 
-
+#
 # Globaler Cache211
 alignment_cache = {}
 
