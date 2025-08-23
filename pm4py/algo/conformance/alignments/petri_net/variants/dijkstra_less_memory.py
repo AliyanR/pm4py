@@ -385,6 +385,73 @@ def __transform_trace_to_mem_efficient_structure(
     }
 
 
+alignment_cache: dict = {}
+
+def __trace_key(trace, parameters):
+    """Erzeuge stabilen, hashbaren Schlüssel nur aus der Aktivitätsfolge."""
+    activity_key = exec_utils.get_param_value(Parameters.ACTIVITY_KEY, parameters, DEFAULT_NAME_KEY)
+    return tuple(ev[activity_key] for ev in trace)
+
+def apply(
+    trace: Trace,
+    net: PetriNet,
+    im: Marking,
+    fm: Marking,
+    parameters: Optional[Dict[Union[str, Parameters], Any]] = None,
+) -> typing.AlignmentResult:
+    if parameters is None:
+        parameters = {}
+    
+
+    # ---- Cache vorbereiten & Key bauen (so früh wie möglich) ----
+    # Welchen Cache benutzen? (Parameter gewinnt; sonst globaler Fallback)
+    cache_dict = alignment_cache
+
+    sync_cost = exec_utils.get_param_value(
+        Parameters.PARAM_STD_SYNC_COST, parameters, align_utils.STD_SYNC_COST
+    )
+    # Activity-Key wirkt auf den Trace-Key → gehört in den Cache-Key
+    activity_key = exec_utils.get_param_value(
+        Parameters.ACTIVITY_KEY, parameters, DEFAULT_NAME_KEY
+    )
+
+    # stabiler, hashbarer Schlüssel: (Netz/Marking-Identität, Sync-Cost, Activity-Key, Tracefolge)
+    # Hinweis: id(net) ändert sich, wenn du das Netz neu konstruierst → dann baut sich der Cache sauber neu auf.
+    cache_key = (id(net), id(im), id(fm), float(sync_cost), str(activity_key), __trace_key(trace, parameters))
+
+    # Hit?
+    if cache_key in cache_dict:
+        return cache_dict[cache_key]
+
+    # ---- Teure Schritte erst nach Cache-Miss ----
+    model_struct = __transform_model_to_mem_efficient_structure(
+        net, im, fm, trace, parameters=parameters
+    )
+    trace_struct = __transform_trace_to_mem_efficient_structure(
+        trace, model_struct, parameters=parameters
+    )
+
+    max_align_time_trace = exec_utils.get_param_value(
+        Parameters.PARAM_MAX_ALIGN_TIME_TRACE, parameters, sys.maxsize
+    )
+    ret_tuple_as_trans_desc = exec_utils.get_param_value(
+        Parameters.PARAM_ALIGNMENT_RESULT_IS_SYNC_PROD_AWARE, parameters, False
+    )
+
+    result = __dijkstra(
+        model_struct,
+        trace_struct,
+        sync_cost=sync_cost,
+        max_align_time_trace=max_align_time_trace,
+        ret_tuple_as_trans_desc=ret_tuple_as_trans_desc,
+    )
+
+    # Nur sinnvolle Ergebnisse cachen
+    if result is not None:
+        cache_dict[cache_key] = result
+
+    return result
+
 def apply(
     trace: Trace,
     net: PetriNet,
@@ -439,6 +506,63 @@ def apply(
         max_align_time_trace=max_align_time_trace,
         ret_tuple_as_trans_desc=ret_tuple_as_trans_desc,
     )
+
+
+
+# def apply(
+#     trace: Trace,
+#     net: PetriNet,
+#     im: Marking,
+#     fm: Marking,
+#     parameters: Optional[Dict[Union[str, Parameters], Any]] = None,
+# ) -> typing.AlignmentResult:
+#     """
+#     Performs the basic alignment search, given a trace and a net.
+
+#     Parameters
+#     ----------
+#     trace: :class:`list` input trace, assumed to be a list of events (i.e. the code will use the activity key
+#     to get the attributes)
+#     petri_net: :class:`pm4py.objects.petri.net.PetriNet` the Petri net to use in the alignment
+#     initial_marking: :class:`pm4py.objects.petri.net.Marking` initial marking in the Petri net
+#     final_marking: :class:`pm4py.objects.petri.net.Marking` final marking in the Petri net
+#     parameters: :class:`dict` (optional) dictionary containing one of the following:
+#         Parameters.PARAM_TRACE_COST_FUNCTION: :class:`list` (parameter) mapping of each index of the trace to a positive cost value
+#         Parameters.PARAM_MODEL_COST_FUNCTION: :class:`dict` (parameter) mapping of each transition in the model to corresponding
+#         model cost
+#         Parameters.ACTIVITY_KEY: :class:`str` (parameter) key to use to identify the activity described by the events
+
+#     Returns
+#     -------
+#     dictionary: `dict` with keys **alignment**, **cost**, **visited_states**, **queued_states** and **traversed_arcs**
+#     """
+#     if parameters is None:
+#         parameters = {}
+
+#     model_struct = __transform_model_to_mem_efficient_structure(
+#         net, im, fm, trace, parameters=parameters
+#     )
+#     trace_struct = __transform_trace_to_mem_efficient_structure(
+#         trace, model_struct, parameters=parameters
+#     )
+
+#     sync_cost = exec_utils.get_param_value(
+#         Parameters.PARAM_STD_SYNC_COST, parameters, align_utils.STD_SYNC_COST
+#     )
+#     max_align_time_trace = exec_utils.get_param_value(
+#         Parameters.PARAM_MAX_ALIGN_TIME_TRACE, parameters, sys.maxsize
+#     )
+#     ret_tuple_as_trans_desc = exec_utils.get_param_value(
+#         Parameters.PARAM_ALIGNMENT_RESULT_IS_SYNC_PROD_AWARE, parameters, False
+#     )
+
+#     return __dijkstra(
+#         model_struct,
+#         trace_struct,
+#         sync_cost=sync_cost,
+#         max_align_time_trace=max_align_time_trace,
+#         ret_tuple_as_trans_desc=ret_tuple_as_trans_desc,
+#     )
 
 
 def __dict_leq(d1, d2):
