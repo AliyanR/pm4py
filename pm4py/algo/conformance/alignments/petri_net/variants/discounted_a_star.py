@@ -110,7 +110,7 @@ def apply(trace, petri_net, initial_marking, final_marking, parameters=None):
 
     Returns
     -------
-    dictionary: `dict` with keys **alignment**, **cost**, **visited_states**, **queued_states** and **traversed_arcs**
+    dictionary: `dict` with keys **alignment*4*, **cost**, **visited_states**, **queued_states** and **traversed_arcs**
     """
     if parameters is None:
         parameters = {}
