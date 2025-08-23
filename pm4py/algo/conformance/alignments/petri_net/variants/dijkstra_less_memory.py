@@ -402,7 +402,6 @@ def apply(
     if parameters is None:
         parameters = {}
     
-    print(alignment_cache)
 
     # ---- Cache vorbereiten & Key bauen (so früh wie möglich) ----
     # Welchen Cache benutzen? (Parameter gewinnt; sonst globaler Fallback)
