@@ -452,7 +452,7 @@ def __trace_key(trace, parameters):
 #         cache_dict[cache_key] = result
 
 #     return result
-
+#
 def apply(
     trace: Trace,
     net: PetriNet,
