@@ -132,7 +132,7 @@ def apply(
             parameters=parameters,
             variant=variant,
         )
-
+#
 
 def apply_trace(
     trace,
