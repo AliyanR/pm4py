@@ -264,7 +264,7 @@ def apply_log(
     enable_best_worst_cost = exec_utils.get_param_value(
         Parameters.ENABLE_BEST_WORST_COST, parameters, True
     )
-######
+#######
     variant = __variant_mapper(variant)
 
     start_time = time.time()
