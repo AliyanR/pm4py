@@ -258,7 +258,7 @@ def apply_log(
             petri_net, initial_marking, final_marking
         ):
             raise Exception(
-                "trying to apply alignments on a Petri net that is not a easy sound net!!"
+                "trying to apply alignmelnts on a Petri net that is not a easy sound net!!"
             )
 
     enable_best_worst_cost = exec_utils.get_param_value(
