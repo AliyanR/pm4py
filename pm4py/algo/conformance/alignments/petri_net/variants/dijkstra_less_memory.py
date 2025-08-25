@@ -761,9 +761,9 @@ def __dijkstra(
     closed = {}
     dummy_count = 0
     visited = 0
-    print(max_align_time_trace)
 
     while not len(open_set) == 0:
+        print(time.time() - start_time)
         if (time.time() - start_time) > max_align_time_trace:
             return None
         curr = heapq.heappop(open_set)
