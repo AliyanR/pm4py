@@ -763,7 +763,6 @@ def __dijkstra(
     visited = 0
 
     while not len(open_set) == 0:
-        print(time.time() - start_time)
         if (time.time() - start_time) > max_align_time_trace:
             return None
         curr = heapq.heappop(open_set)
