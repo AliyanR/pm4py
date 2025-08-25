@@ -287,7 +287,7 @@ def apply_log(
     all_alignments = []
     for trace in one_tr_per_var:
         this_max_align_time = min(
-            0.0001,
+            99999999,
             (max_align_time - (time.time() - start_time)) * 0.5,
         )
         parameters[Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = this_max_align_time
