@@ -320,7 +320,6 @@ def __transform_model_to_mem_efficient_structure(
     inv_trans_dict = {y: x for x, y in trans_dict.items()}
 
         # -------- NEU: Allowed-Labels in Transition-IDs umsetzen --------
-    allowed_labels = exec_utils.get_param_value(Parameters.ALLOWED_LABELS, parameters, None)
     allowed_trans_ids = None
     if allowed_labels is not None:
         allowed_labels = set(allowed_labels)
