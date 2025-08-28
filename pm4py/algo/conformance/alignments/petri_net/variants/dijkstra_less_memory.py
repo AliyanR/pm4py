@@ -78,7 +78,7 @@ POSITION_EN_T = 7
 
 
 def get_best_worst_cost(
-    petri_net, initial_marking, final_marking, parameters=None
+    test, petri_net, initial_marking, final_marking, parameters=None
 ):
     """
     Gets the best worst cost of an alignment
@@ -102,7 +102,7 @@ def get_best_worst_cost(
     trace = log_implementation.Trace()
 
     best_worst = apply(
-        trace, petri_net, initial_marking, final_marking, parameters=parameters
+        test, trace, petri_net, initial_marking, final_marking, parameters=parameters
     )
 
     if best_worst is not None:

@@ -202,7 +202,7 @@ def apply_trace(
             Parameters.BEST_WORST_COST_INTERNAL,
             parameters,
             __get_best_worst_cost(
-                petri_net, initial_marking, final_marking, variant, parameters
+                test, petri_net, initial_marking, final_marking, variant, parameters
             ),
         )
 
