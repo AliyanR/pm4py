@@ -85,7 +85,7 @@ def __variant_mapper(variant):
             variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
 
     return variant
-##
+
 
 DEFAULT_VARIANT = Variants.VERSION_DIJKSTRA_LESS_MEMORY
 if solver.DEFAULT_LP_SOLVER_VARIANT is not None:
@@ -103,7 +103,6 @@ VERSIONS = {
 
 
 def apply(
-    test,
     obj: Union[EventLog, EventStream, pd.DataFrame, Trace],
     petri_net: PetriNet,
     initial_marking: Marking,
@@ -111,12 +110,11 @@ def apply(
     parameters: Optional[Dict[Any, Any]] = None,
     variant=DEFAULT_VARIANT,
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
+    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     if parameters is None:
         parameters = {}
-    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     if isinstance(obj, Trace):
         return apply_trace(
-            test,
             obj,
             petri_net,
             initial_marking,
@@ -126,7 +124,6 @@ def apply(
         )
     else:
         return apply_log(
-            test,
             obj,
             petri_net,
             initial_marking,
@@ -134,10 +131,9 @@ def apply(
             parameters=parameters,
             variant=variant,
         )
-#
+
 
 def apply_trace(
-    test,
     trace,
     petri_net,
     initial_marking,
@@ -187,7 +183,7 @@ def apply_trace(
     )
 
     ali = exec_utils.get_variant(variant).apply(
-        test, trace, petri_net, initial_marking, final_marking, parameters=parameters
+        trace, petri_net, initial_marking, final_marking, parameters=parameters
     )
 
     trace_cost_function = exec_utils.get_param_value(
@@ -202,7 +198,7 @@ def apply_trace(
             Parameters.BEST_WORST_COST_INTERNAL,
             parameters,
             __get_best_worst_cost(
-                test, petri_net, initial_marking, final_marking, variant, parameters
+                petri_net, initial_marking, final_marking, variant, parameters
             ),
         )
 
@@ -221,7 +217,6 @@ def apply_trace(
 
 
 def apply_log(
-    test,
     log,
     petri_net,
     initial_marking,
@@ -262,13 +257,13 @@ def apply_log(
             petri_net, initial_marking, final_marking
         ):
             raise Exception(
-                "trying to apply alignmelnts on a Petri net that is not a easy sound net!!"
+                "trying to apply alignments on a Petri net that is not a easy sound net!!"
             )
 
     enable_best_worst_cost = exec_utils.get_param_value(
         Parameters.ENABLE_BEST_WORST_COST, parameters, True
     )
-########
+
     variant = __variant_mapper(variant)
 
     start_time = time.time()
@@ -291,13 +286,12 @@ def apply_log(
     all_alignments = []
     for trace in one_tr_per_var:
         this_max_align_time = min(
-            99999999999,
+            max_align_time_case,
             (max_align_time - (time.time() - start_time)) * 0.5,
         )
         parameters[Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = this_max_align_time
         all_alignments.append(
             apply_trace(
-                test,
                 trace,
                 petri_net,
                 initial_marking,
@@ -406,12 +400,11 @@ def apply_multiprocessing(
 
 
 def __get_best_worst_cost(
-    test, petri_net, initial_marking, final_marking, variant, parameters
+    petri_net, initial_marking, final_marking, variant, parameters
 ):
     parameters_best_worst = copy(parameters)
 
     best_worst_cost = exec_utils.get_variant(variant).get_best_worst_cost(
-        test,
         petri_net,
         initial_marking,
         final_marking,
