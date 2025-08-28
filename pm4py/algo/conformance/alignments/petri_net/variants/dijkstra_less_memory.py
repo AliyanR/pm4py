@@ -74,6 +74,8 @@ POSITION_PARENT_STATE = 5
 POSITION_MARKING = 6
 POSITION_EN_T = 7
 
+allowed_labels = { f"V{v}_{k}" for v in range(1, 33) for k in range(1, 4) }
+
 
 def get_best_worst_cost(
     petri_net, initial_marking, final_marking, parameters=None
@@ -317,6 +319,18 @@ def __transform_model_to_mem_efficient_structure(
 
     inv_trans_dict = {y: x for x, y in trans_dict.items()}
 
+        # -------- NEU: Allowed-Labels in Transition-IDs umsetzen --------
+    allowed_labels = exec_utils.get_param_value(Parameters.ALLOWED_LABELS, parameters, None)
+    allowed_trans_ids = None
+    if allowed_labels is not None:
+        allowed_labels = set(allowed_labels)
+        # tau (label=None) immer erlauben
+        allowed_trans_ids = {
+            trans_dict[t] for t in net.transitions
+            if (t.label is None) or (t.label in allowed_labels)
+        }
+    # ----------------------------------------------------------------
+
     return {
         PLACES_DICT: places_dict,
         INV_TRANS_DICT: inv_trans_dict,
@@ -327,6 +341,7 @@ def __transform_model_to_mem_efficient_structure(
         TRANSF_IM: transf_im,
         TRANSF_FM: transf_fm,
         TRANSF_MODEL_COST_FUNCTION: transf_model_cost_function,
+        "allowed_trans_ids": allowed_trans_ids
     }
 
 
@@ -793,6 +808,11 @@ def __dijkstra(
         en_t = [
             t for t in trans_pre_dict if __dict_leq(trans_pre_dict[t], curr_m)
         ]
+
+        allowed_trans_ids = model_struct.get("allowed_trans_ids", None)
+        if allowed_trans_ids is not None:
+            en_t = [t for t in en_t if t in allowed_trans_ids]
+        
         this_closed = set()
         j = 0
         while j < len(en_t):
