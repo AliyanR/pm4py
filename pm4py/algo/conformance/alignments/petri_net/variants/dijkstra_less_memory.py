@@ -74,7 +74,7 @@ POSITION_PARENT_STATE = 5
 POSITION_MARKING = 6
 POSITION_EN_T = 7
 
-allowed_labels = { f"V{v}_{k}" for v in range(1, 33) for k in range(1, 4) }
+
 
 
 def get_best_worst_cost(
@@ -321,6 +321,7 @@ def __transform_model_to_mem_efficient_structure(
 
         # -------- NEU: Allowed-Labels in Transition-IDs umsetzen --------
     allowed_trans_ids = None
+    allowed_labels = { f"V{v}_{k}" for v in range(1, 33) for k in range(1, 4) }
     if allowed_labels is not None:
         allowed_labels = set(allowed_labels)
         # tau (label=None) immer erlauben
