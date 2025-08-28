@@ -116,6 +116,7 @@ def apply(
     variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     if isinstance(obj, Trace):
         return apply_trace(
+            test,
             obj,
             petri_net,
             initial_marking,
