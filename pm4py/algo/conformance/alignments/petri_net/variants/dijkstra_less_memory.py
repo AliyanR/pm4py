@@ -218,7 +218,7 @@ def apply_from_variant(
 
 
 def __transform_model_to_mem_efficient_structure(
-    net, im, fm, trace, parameters=None
+    label_info, net, im, fm, trace, parameters=None
 ):
     """
     Transform the Petri net model to a memory efficient structure
@@ -321,7 +321,7 @@ def __transform_model_to_mem_efficient_structure(
 
         # -------- NEU: Allowed-Labels in Transition-IDs umsetzen --------
     allowed_trans_ids = None
-    allowed_labels = { f"V{v}_{k}" for v in range(1, 33) for k in range(1, 4) }
+    allowed_labels = label_info
     if allowed_labels is not None:
         allowed_labels = set(allowed_labels)
         # tau (label=None) immer erlauben
@@ -468,6 +468,7 @@ def __trace_key(trace, parameters):
 #     return result
 
 def apply(
+    label_info,
     trace: Trace,
     net: PetriNet,
     im: Marking,
@@ -498,7 +499,7 @@ def apply(
         parameters = {}
 
     model_struct = __transform_model_to_mem_efficient_structure(
-        net, im, fm, trace, parameters=parameters
+        label_info, net, im, fm, trace, parameters=parameters
     )
     trace_struct = __transform_trace_to_mem_efficient_structure(
         trace, model_struct, parameters=parameters

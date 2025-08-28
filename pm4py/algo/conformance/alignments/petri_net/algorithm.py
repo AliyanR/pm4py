@@ -103,6 +103,7 @@ VERSIONS = {
 
 
 def apply(
+    test,
     obj: Union[EventLog, EventStream, pd.DataFrame, Trace],
     petri_net: PetriNet,
     initial_marking: Marking,
@@ -124,6 +125,7 @@ def apply(
         )
     else:
         return apply_log(
+            test,
             obj,
             petri_net,
             initial_marking,
@@ -134,6 +136,7 @@ def apply(
 #
 
 def apply_trace(
+    test,
     trace,
     petri_net,
     initial_marking,
@@ -183,7 +186,7 @@ def apply_trace(
     )
 
     ali = exec_utils.get_variant(variant).apply(
-        trace, petri_net, initial_marking, final_marking, parameters=parameters
+        test, trace, petri_net, initial_marking, final_marking, parameters=parameters
     )
 
     trace_cost_function = exec_utils.get_param_value(
@@ -217,6 +220,7 @@ def apply_trace(
 
 
 def apply_log(
+    test,
     log,
     petri_net,
     initial_marking,
@@ -292,6 +296,7 @@ def apply_log(
         parameters[Parameters.PARAM_MAX_ALIGN_TIME_TRACE] = this_max_align_time
         all_alignments.append(
             apply_trace(
+                test,
                 trace,
                 petri_net,
                 initial_marking,
