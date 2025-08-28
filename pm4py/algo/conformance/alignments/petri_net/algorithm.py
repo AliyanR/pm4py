@@ -406,11 +406,12 @@ def apply_multiprocessing(
 
 
 def __get_best_worst_cost(
-    petri_net, initial_marking, final_marking, variant, parameters
+    test, petri_net, initial_marking, final_marking, variant, parameters
 ):
     parameters_best_worst = copy(parameters)
 
     best_worst_cost = exec_utils.get_variant(variant).get_best_worst_cost(
+        test,
         petri_net,
         initial_marking,
         final_marking,
