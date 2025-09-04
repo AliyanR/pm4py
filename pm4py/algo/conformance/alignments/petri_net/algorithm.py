@@ -110,7 +110,6 @@ def apply(
     parameters: Optional[Dict[Any, Any]] = None,
     variant=DEFAULT_VARIANT,
 ) -> Union[typing.AlignmentResult, typing.ListAlignments]:
-    variant = Variants.VERSION_DIJKSTRA_LESS_MEMORY
     print(variant)
     if parameters is None:
         parameters = {}
@@ -252,6 +251,8 @@ def apply_log(
     """
     if parameters is None:
         parameters = dict()
+    
+
 
     if solver.DEFAULT_LP_SOLVER_VARIANT is not None:
         if not check_soundness.check_easy_soundness_net_in_fin_marking(

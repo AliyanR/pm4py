@@ -414,7 +414,7 @@ def apply(
     """
     if parameters is None:
         parameters = {}
-    print(parameters)
+
 
     model_struct = __transform_model_to_mem_efficient_structure(
         net, im, fm, trace, parameters=parameters
@@ -432,6 +432,8 @@ def apply(
     ret_tuple_as_trans_desc = exec_utils.get_param_value(
         Parameters.PARAM_ALIGNMENT_RESULT_IS_SYNC_PROD_AWARE, parameters, False
     )
+
+    print(parameters)
 
     return __dijkstra(
         model_struct,
