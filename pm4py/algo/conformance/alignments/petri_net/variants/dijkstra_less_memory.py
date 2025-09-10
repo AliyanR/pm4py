@@ -632,30 +632,9 @@ def __dijkstra(
     ret_tuple_as_trans_desc=False,
 ):
     """
-    Alignments using Dijkstra
-
-    Parameters
-    ---------------
-    model_struct
-        Efficient model structure
-    trace_struct
-        Efficient trace structure
-    sync_cost
-        Cost of a sync move (limitation: all sync moves shall have the same cost in this setting)
-    max_align_time_trace
-        Maximum alignment time for a trace (in seconds)
-    ret_tuple_as_trans_desc
-        Says if the alignments shall be constructed including also
-        the name of the transition, or only the label (default=False includes only the label)
-
-    Returns
-    --------------
-    alignment
-        Alignment of the trace, including:
-            alignment: the sequence of moves
-            queued: the number of states that have been queued
-            visited: the number of states that have been visited
-            cost: the cost of the alignment
+    Dijkstra mit kostenbewusstem Duplicate-Pruning:
+    - best_cost_at[(marking, index)] = niedrigste bekannte Kosten
+    - best_cost_marking[marking] = niedrigste bekannte Kosten (indexunabhängig, weiches Pruning)
     """
     start_time = time.time()
 
@@ -671,82 +650,77 @@ def __dijkstra(
     im = __encode_marking(marking_dict, model_struct[TRANSF_IM])
     fm = __encode_marking(marking_dict, model_struct[TRANSF_FM])
 
-    # each state is characterized by:
-    # position 0 (POSITION_TOTAL_COST): total cost of the state
-    # position 1 (POSITION_INDEX): the opposite of the position of the trace (the higher is, the lower should
-    # be the state in the queue
-    # position 2 (POSITION_TYPE_MOVE): the type of the move:
-    # ----------- 0 (IS_SYNC_MOVE): sync moves
-    # ----------- 1 (IS_LOG_MOVE): log moves
-    # ----------- 2 (IS_MODEL_MOVE): model moves
-    # position 3 (POSITION_ALIGN_LENGTH): the length of the alignment
-    # position 4 (POSITION_STATES_COUNT): the count of states visited
-    # position 5 (POSITION_PARENT_STATE): if valued, the parent state of the current state
-    # position 6 (POSITION_MARKING): the marking associated to the state
-    # position 7 (POSITION_EN_T): if valued, the transition that was enabled
-    # to reach the state
+    # State-Tupel:
+    # 0: total_cost, 1: index, 2: move_type, 3: align_len, 4: states_count,
+    # 5: parent, 6: marking, 7: enabled_transition_id
     initial_state = (0, 0, 0, 0, 0, None, im, None)
     open_set = [initial_state]
     heapq.heapify(open_set)
 
-    closed = {}
+    # Neu: Kosten-Register
+    best_cost_at = {}        # key: (marking, index) -> best_cost
+    best_cost_marking = {}   # key: marking -> best_cost (soft pruning)
+
     dummy_count = 0
     visited = 0
 
-    while not len(open_set) == 0:
+    while open_set:
         if (time.time() - start_time) > max_align_time_trace:
             return None
-        curr = heapq.heappop(open_set)
-        curr_m0 = curr[POSITION_MARKING]
-        curr_m = __decode_marking(curr_m0)
-        # if a situation equivalent to the one of the current state has been
-        # visited previously, then discard this
-        if __check_closed(closed, (curr_m0, curr[POSITION_INDEX])):
-            continue
-        visited = visited + 1
 
-        __add_closed(closed, (curr_m0, curr[POSITION_INDEX]))
-        if curr_m0 == fm:
-            if -curr[POSITION_INDEX] == len(transf_trace):
-                # returns the alignment only if the final marking has been reached AND
-                # the trace is over
-                return __reconstruct_alignment(
-                    curr,
-                    model_struct,
-                    trace_struct,
-                    visited,
-                    len(open_set),
-                    len(closed),
-                    len(marking_dict),
-                    ret_tuple_as_trans_desc=ret_tuple_as_trans_desc,
-                )
-        # retrieves the transitions that are enabled in the current marking
-        en_t = [
-            t for t in trans_pre_dict if __dict_leq(trans_pre_dict[t], curr_m)
-        ]
+        curr = heapq.heappop(open_set)
+        curr_cost = curr[POSITION_TOTAL_COST]
+        curr_idx = curr[POSITION_INDEX]
+        curr_m0  = curr[POSITION_MARKING]
+
+        # Harte Duplicate-Regel: ist dieses (marking, index) schon günstiger gesehen?
+        prev = best_cost_at.get((curr_m0, curr_idx))
+        if prev is not None and prev <= curr_cost:
+            continue
+
+        # Soft-Pruning: dieselbe Markierung wurde schon günstiger erreicht?
+        prev_m = best_cost_marking.get(curr_m0)
+        if prev_m is not None and prev_m <= curr_cost:
+            # dieser Zustand wird mit hoher Wahrscheinlichkeit nicht mehr optimal
+            # -> aggressiv überspringen
+            continue
+
+        # Jetzt als bester bekannter Stand registrieren
+        best_cost_at[(curr_m0, curr_idx)] = curr_cost
+        best_cost_marking[curr_m0] = curr_cost if prev_m is None else min(prev_m, curr_cost)
+
+        curr_m = __decode_marking(curr_m0)
+        visited += 1
+
+        # Ziel erreicht?
+        if curr_m0 == fm and -curr_idx == len(transf_trace):
+            return __reconstruct_alignment(
+                curr, model_struct, trace_struct, visited,
+                len(open_set), len(best_cost_at), len(marking_dict),
+                ret_tuple_as_trans_desc=ret_tuple_as_trans_desc,
+            )
+
+        # Enabled transitions im aktuellen Marking
+        en_t = [t for t in trans_pre_dict if __dict_leq(trans_pre_dict[t], curr_m)]
         this_closed = set()
+
+        # 1) Sync-Moves bevorzugen
         j = 0
         while j < len(en_t):
             t = en_t[j]
-            # checks if a given transition can be executed in sync with the
-            # trace
             is_sync = (
-                trans_labels_dict[t] == transf_trace[-curr[POSITION_INDEX]]
-                if -curr[POSITION_INDEX] < len(transf_trace)
-                else False
+                trans_labels_dict[t] == transf_trace[-curr_idx]
+                if -curr_idx < len(transf_trace) else False
             )
             if is_sync:
-                dummy_count = dummy_count + 1
-                # virtually fires the transition to get a new marking
+                dummy_count += 1
                 new_m = __encode_marking(
-                    marking_dict,
-                    __fire_trans(
-                        curr_m, trans_pre_dict[t], trans_post_dict[t]
-                    ),
+                    marking_dict, __fire_trans(curr_m, trans_pre_dict[t], trans_post_dict[t])
                 )
+                new_cost = curr_cost + sync_cost
                 new_state = (
-                    curr[POSITION_TOTAL_COST] + sync_cost,
-                    curr[POSITION_INDEX] - 1,
+                    new_cost,
+                    curr_idx - 1,
                     IS_SYNC_MOVE,
                     curr[POSITION_ALIGN_LENGTH] + 1,
                     dummy_count,
@@ -754,33 +728,32 @@ def __dijkstra(
                     new_m,
                     t,
                 )
-                if not __check_closed(
-                    closed,
-                    (new_state[POSITION_MARKING], new_state[POSITION_INDEX]),
-                ):
-                    # if it can be executed in a sync way, add a new state corresponding
-                    # to the sync execution only if it has not already been
-                    # closed
-                    open_set = __add_to_open_set(open_set, new_state)
-                # if a sync move reached new_m, do not schedule any model move
-                # that reaches new_m
-                this_closed.add(new_m)
+
+                # Frühes Kosten-Pruning vor dem Enqueue (spart Heap-Ops)
+                bc_at = best_cost_at.get((new_state[POSITION_MARKING], new_state[POSITION_INDEX]))
+                bc_m  = best_cost_marking.get(new_state[POSITION_MARKING])
+                if (bc_at is None or new_cost < bc_at) and (bc_m is None or new_cost < bc_m):
+                    heapq.heappush(open_set, new_state)
+
+                this_closed.add(new_m)  # Model-Moves, die zu gleichem new_m führen, sparen
                 del en_t[j]
                 continue
-            j = j + 1
+            j += 1
+
+        # 2) Model-Moves nach Kosten sortiert (billige zuerst)
         en_t.sort(key=lambda t: transf_model_cost_function[t])
-        j = 0
-        while j < len(en_t):
-            t = en_t[j]
-            dummy_count = dummy_count + 1
-            # virtually fires the transition to get a new marking
+        for t in en_t:
+            dummy_count += 1
             new_m = __encode_marking(
-                marking_dict,
-                __fire_trans(curr_m, trans_pre_dict[t], trans_post_dict[t]),
+                marking_dict, __fire_trans(curr_m, trans_pre_dict[t], trans_post_dict[t])
             )
+            if new_m in this_closed or new_m == curr_m0:
+                continue
+
+            new_cost = curr_cost + transf_model_cost_function[t]
             new_state = (
-                curr[POSITION_TOTAL_COST] + transf_model_cost_function[t],
-                curr[POSITION_INDEX],
+                new_cost,
+                curr_idx,
                 IS_MODEL_MOVE,
                 curr[POSITION_ALIGN_LENGTH] + 1,
                 dummy_count,
@@ -788,28 +761,20 @@ def __dijkstra(
                 new_m,
                 t,
             )
-            if new_m not in this_closed and not curr_m0 == new_m:
-                if not __check_closed(
-                    closed,
-                    (new_state[POSITION_MARKING], new_state[POSITION_INDEX]),
-                ):
-                    open_set = __add_to_open_set(open_set, new_state)
-                this_closed.add(new_m)
-            j = j + 1
 
-        # IMPORTANT: to reduce the complexity, assume that you can schedule a log move
-        # only if the previous move has not been a move-on-model.
-        # since this setting is equivalent to scheduling all the log moves before and then
-        # the model moves
-        if (
-            -curr[POSITION_INDEX] < len(transf_trace)
-            and curr[POSITION_TYPE_MOVE] != IS_MODEL_MOVE
-        ):
-            dummy_count = dummy_count + 1
+            bc_at = best_cost_at.get((new_state[POSITION_MARKING], new_state[POSITION_INDEX]))
+            bc_m  = best_cost_marking.get(new_state[POSITION_MARKING])
+            if (bc_at is None or new_cost < bc_at) and (bc_m is None or new_cost < bc_m):
+                heapq.heappush(open_set, new_state)
+                this_closed.add(new_m)
+
+        # 3) Log-Move nur wenn letzter Move nicht Model war
+        if (-curr_idx < len(transf_trace)) and (curr[POSITION_TYPE_MOVE] != IS_MODEL_MOVE):
+            dummy_count += 1
+            new_cost = curr_cost + trace_cost_function[-curr_idx]
             new_state = (
-                curr[POSITION_TOTAL_COST]
-                + trace_cost_function[-curr[POSITION_INDEX]],
-                curr[POSITION_INDEX] - 1,
+                new_cost,
+                curr_idx - 1,
                 IS_LOG_MOVE,
                 curr[POSITION_ALIGN_LENGTH] + 1,
                 dummy_count,
@@ -817,13 +782,12 @@ def __dijkstra(
                 curr_m0,
                 None,
             )
-            if not __check_closed(
-                closed,
-                (new_state[POSITION_MARKING], new_state[POSITION_INDEX]),
-            ):
-                # adds the log move only if it has not been already closed
-                # before
-                open_set = __add_to_open_set(open_set, new_state)
+
+            bc_at = best_cost_at.get((new_state[POSITION_MARKING], new_state[POSITION_INDEX]))
+            bc_m  = best_cost_marking.get(new_state[POSITION_MARKING])
+            if (bc_at is None or new_cost < bc_at) and (bc_m is None or new_cost < bc_m):
+                heapq.heappush(open_set, new_state)
+
 
 
 def __reconstruct_alignment(
